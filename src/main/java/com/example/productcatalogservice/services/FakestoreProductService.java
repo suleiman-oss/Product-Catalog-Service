@@ -13,7 +13,7 @@ import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 
 @Service
-public class ProductService implements IProductService {
+public class FakestoreProductService implements IProductService {
     @Autowired
     RestTemplateBuilder restTemplateBuilder;
 

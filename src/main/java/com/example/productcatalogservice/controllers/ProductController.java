@@ -40,7 +40,6 @@ public class ProductController {
         return productDTOs;
     }
     
-
     @GetMapping("{id}")
     public ResponseEntity<ProductDTO> getProduct(@PathVariable("id") Long productId){
         try {
@@ -62,7 +61,9 @@ public class ProductController {
 
     @PostMapping
     public ProductDTO createProduct(@RequestBody ProductDTO productdDto){
-        return productdDto;
+        Product product=from(productdDto);
+        Product createdProduct=productService.createProduct(product);
+        return from(createdProduct);
     }
     
     @PutMapping("{id}")
