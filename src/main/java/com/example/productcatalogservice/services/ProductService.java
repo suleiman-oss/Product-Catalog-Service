@@ -5,16 +5,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RequestCallback;
-import org.springframework.web.client.ResponseExtractor;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
+import com.example.productcatalogservice.clients.FaksestoreAPIClient;
 import com.example.productcatalogservice.dtos.FakestoreProductDTO;
 import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
@@ -24,19 +17,18 @@ public class ProductService implements IProductService {
     @Autowired
     RestTemplateBuilder restTemplateBuilder;
 
+    @Autowired
+    FaksestoreAPIClient faksestoreAPIClient;
+
     @Override
     public Product getProductById(Long id){
-        ResponseEntity<FakestoreProductDTO> fakestoreProductDTOResponseEntity= requetsForEntity(HttpMethod.GET,"https://fakestoreapi.com/products/{id}",null,FakestoreProductDTO.class,id);
-        if(fakestoreProductDTOResponseEntity.getStatusCode().equals(HttpStatus.OK)){
-            return from(fakestoreProductDTOResponseEntity.getBody());
-        }
-        return null;
+        return from(faksestoreAPIClient.getProductById(id));
     }
 
     @Override
     public List<Product> getAllProducts(){
         List<Product> products=new ArrayList<>();
-        FakestoreProductDTO[] fakestoreProductDTOs = requetsForEntity(HttpMethod.GET,"https://fakestoreapi.com/products",null, FakestoreProductDTO[].class).getBody();
+        FakestoreProductDTO[] fakestoreProductDTOs = faksestoreAPIClient.getAllProducts();
         if (fakestoreProductDTOs==null){
             return null;
         }
@@ -45,20 +37,13 @@ public class ProductService implements IProductService {
         }
         return products;
     }
-    
+
     @Override
     public Product replaceProduct(Long id, Product product){
         FakestoreProductDTO fakestoreProductDTOreq = from(product);
-        FakestoreProductDTO fakestoreProductDTO=requetsForEntity(HttpMethod.PUT,"https://fakestoreapi.com/products/{id}", fakestoreProductDTOreq, FakestoreProductDTO.class,id).getBody();
+        FakestoreProductDTO fakestoreProductDTO=faksestoreAPIClient.replaceProduct(id, fakestoreProductDTOreq);
         return from(fakestoreProductDTO);
     }
-
-    public <T> ResponseEntity<T> requetsForEntity(HttpMethod httpMethod,String url, @Nullable Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
-        RestTemplate restTemplate=restTemplateBuilder.build();
-		RequestCallback requestCallback = restTemplate.httpEntityCallback(request, responseType);
-		ResponseExtractor<ResponseEntity<T>> responseExtractor = restTemplate.responseEntityExtractor(responseType);
-		return restTemplate.execute(url, httpMethod, requestCallback, responseExtractor, uriVariables);
-	}
 
     @Override
     public Product createProduct(Product product){
