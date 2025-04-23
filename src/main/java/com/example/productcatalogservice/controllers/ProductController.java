@@ -1,28 +1,26 @@
 package com.example.productcatalogservice.controllers;
 
-import com.example.productcatalogservice.dtos.CategoryDTO;
-import com.example.productcatalogservice.dtos.ProductDTO;
-import com.example.productcatalogservice.models.Product;
-import com.example.productcatalogservice.services.IProductService;
-
-import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.productcatalogservice.dtos.CategoryDTO;
+import com.example.productcatalogservice.dtos.ProductDTO;
+import com.example.productcatalogservice.models.Category;
+import com.example.productcatalogservice.models.Product;
+import com.example.productcatalogservice.services.IProductService;
 
 
 
@@ -58,9 +56,27 @@ public class ProductController {
     public ProductDTO createProduct(@RequestBody ProductDTO productdDto){
         return productdDto;
     }
+    
     @PutMapping("{id}")
     public ProductDTO replaceProduct(@PathVariable Long id,@RequestBody ProductDTO productDTO){
-        return productDTO;
+        Product product=from(productDTO);
+        product = productService.replaceProduct(id, product);
+        return from(product);
+    }
+
+    private Product from(ProductDTO productDTO){
+        Product product=new Product();
+        product.setId(productDTO.getId());
+        product.setDescription(productDTO.getDescription());
+        product.setName(productDTO.getName());
+        product.setImageURL(productDTO.getImageURL());
+        product.setPrice(productDTO.getPrice());
+        Category category=new Category();
+        category.setId(productDTO.getCategory().getId());
+        category.setName(productDTO.getCategory().getName());
+        category.setDescription(productDTO.getCategory().getDescription());
+        product.setCategory(category);
+        return product;
     }
 
     private ProductDTO from(Product product){
