@@ -1,5 +1,6 @@
 package com.example.productcatalogservice.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,27 @@ public class CategoryRepoTest {
         System.out.println(cOptional.get().getName());
         for(Product p: cOptional.get().getProducts()){
             System.out.println(p.getName());
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFetchMode(){
+         Optional<Category> cOptional=categoryRepo.findById(1L);
+        System.out.println(cOptional.get().getName());
+        for(Product p: cOptional.get().getProducts()){
+            System.out.println(p.getName());
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFetchModeSubselect(){
+        List<Category> cAll=categoryRepo.findAll();
+        for(Category c: cAll){
+            List<Product> p=c.getProducts();
+            if (!p.isEmpty())
+                System.out.println(p.get(0).getName());
         }
     }
 }
